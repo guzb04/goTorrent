@@ -9,6 +9,8 @@ import (
 	"golang.org/x/tools/go/analysis/passes/ifaceassert"
 )
 
+const Port uint16 = 6842
+
 type bencodeInfo struct {
 	Pieces      string `bencode:"pieces"`
 	PieceLength int    `bencode:"piece length"`
@@ -21,15 +23,6 @@ type bencodeTorrent struct {
 	Info     bencodeInfo `bencode:"info"`
 }
 
-func Open(r io.Reader) (*bencodeTorrent, error) {
-	bto := bencodeTorrent{}
-	err := bencode.Unmarshal(r, &bto)
-
-	if err != nil {
-		return nil, err
-	}
-	return &bto, nil
-}
 
 type TorrentFile struct {
 	Announce    string
@@ -40,25 +33,14 @@ type TorrentFile struct {
 	Name        string
 }
 
-//func (bto *bencodeTorrent) toTorrentFile() (TorrentFile, error){
-//}
 
-func (t *TorrentFile) buildTrackerURL(peerID [20]byte, port uint16) (string, error) {
-	base, err := url.Parse(t.Announce)
+func Open(r io.Reader) (*bencodeTorrent, error) {
+	bto := bencodeTorrent{}
+	err := bencode.Unmarshal(r, &bto)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-
-	params := url.Values{
-		"info_hash":  []string{string(t.InfoHash[:])},
-		"peer_id":    []string{string(peerID[:])},
-		"port":       []string{strconv.Itoa(int(Port))},
-		"uploaded":   []string{"0"},
-		"downloaded": []string{"0"},
-		"compact":    []string{"1"},
-		"left":       []string{strconv.Itoa(t.Length)},
-	}
-	base.RawQuery = params.Encode()
-	return base.String(), nil
+	return &bto, nil
 }
+

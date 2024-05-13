@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
+	"strconv"
 )
 
 // peers info
@@ -30,4 +31,8 @@ func Unmarshal(peersBin []byte) ([]Peer, error) {
 	}
 	return peers, nil
 
+}
+
+func (p Peer) String() string {
+  return net.JoinHostPort(p.IP.String(), strconv.Itoa(int(p.Port)))
 }
