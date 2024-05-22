@@ -186,21 +186,21 @@ func (t *Torrent) Download() ([]byte, error) {
 		go t.startDownloadWorker(peer, workQueue, results)
 	}
 
-  buf := make([]byte, t.Length)
-  donePieces:= 0
+	buf := make([]byte, t.Length)
+	donePieces := 0
 
-  for donePieces <len(t.PieceHashes) {
-    res := <-results
-    begin, end := t.calculateBoundsForPiece(res.index)
-    copy(buf[begin:end], res.buf)
-    donePieces++
+	for donePieces < len(t.PieceHashes) {
+		res := <-results
+		begin, end := t.calculateBoundsForPiece(res.index)
+		copy(buf[begin:end], res.buf)
+		donePieces++
 
-    percent := float64(donePieces) / float64(len(t.PieceHashes)) * 100
-    numWorkers := runtime.NumGoroutine() - 1
-    log.Printf("(%0.2f%%) Downloaded piece %d from %d peers\n", percent, res.index, numWorkers)
-  }
+		percent := float64(donePieces) / float64(len(t.PieceHashes)) * 100
+		numWorkers := runtime.NumGoroutine() - 1
+		log.Printf("(%0.2f%%) Downloaded piece %d from %d peers\n", percent, res.index, numWorkers)
+	}
 
-  close(workQueue)
+	close(workQueue)
 
-  return buf, nil
+	return buf, nil
 }
